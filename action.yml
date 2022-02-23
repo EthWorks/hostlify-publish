@@ -5,8 +5,8 @@ inputs:
     description: 'Build folder'
     required: true
 outputs:
-  time:
-    description: 'The time we greeted you'
+  url:
+    description: 'Url to preview'
 runs:
   using: 'node16'
   main: 'index.js'
