@@ -1,8 +1,11 @@
 name: 'Publish-truefipreview'
 description: 'Upload files to server'
 inputs:
-  publish-dir:
+  files:
     description: 'Build folder'
+    required: true
+  id:
+    description: 'Commit id'
     required: true
 outputs:
   url:
