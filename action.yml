@@ -1,12 +1,11 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Publish-truefipreview'
+description: 'Upload files to server'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  publish-dir:
+    description: 'Build folder'
     required: true
-    default: 'World'
 outputs:
-  time: # id of output
+  time:
     description: 'The time we greeted you'
 runs:
   using: 'node16'
