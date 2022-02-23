@@ -5,7 +5,7 @@ try {
   const files = core.getInput('files')
   console.log(files)
   const id = core.getInput('id')
-  console.log(id)
+  console.log(`id ${id}`)
   const url = `${id}.truefipreview.io`
   core.setOutput("url", url)
   console.log("myurl " + url)
