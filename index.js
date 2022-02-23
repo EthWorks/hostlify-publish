@@ -11,7 +11,7 @@ try {
   console.log("myurl " + url)
   // Get the JSON webhook payload for the event that triggered the workflow
 //   const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log('files ', github.files)
+  console.log('files ', core.files)
   console.log('input ', github.getInput)
 //   console.log(`The event payload: ${payload}`)
 } catch (error) {
