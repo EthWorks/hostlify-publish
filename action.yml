@@ -9,6 +9,7 @@ inputs:
     required: true
   server-url:
     description: 'Url of preview server'
+    default: test
     required: true
 outputs:
   url:
