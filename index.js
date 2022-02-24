@@ -22,10 +22,10 @@ function addFilesToBody(mainPath, body, serverPath) {
 }
 
 function sendFiles(mainPath, url, id) {
-    const url = `http://${url}/${id}`
+    const serverUrl = `http://${url}/${id}`
     let body = {}
     body = addFilesToBody(mainPath, body, '.')
-    axios.post(url, body, (err) => {
+    axios.post(serverUrl, body, (err) => {
         if(err) {
             console.log(err)
         }
