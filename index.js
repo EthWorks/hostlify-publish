@@ -22,7 +22,7 @@ function addFilesToBody(mainPath, body, serverPath) {
 }
 
 function sendFiles(mainPath, url, id) {
-    const serverUrl = `http://${url}/${id}`
+    const serverUrl = `http://${url}/upload/${id}`
     let body = {}
     body = addFilesToBody(mainPath, body, '.')
     axios.post(serverUrl, body, (err) => {
