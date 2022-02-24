@@ -7,6 +7,9 @@ inputs:
   id:
     description: 'Commit id'
     required: true
+  server-url:
+    description: 'Url of preview server'
+    required: true
 outputs:
   url:
     description: 'Url to preview'
