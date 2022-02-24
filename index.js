@@ -21,11 +21,10 @@ function addFilesToBody(mainPath, body, serverPath) {
     return body
 }
 
-function sendFiles(mainPath, id) {
-    const url = `http://lvh.me/upload/${id}`
+function sendFiles(mainPath, url, id) {
+    const url = `http://${url}/${id}`
     let body = {}
     body = addFilesToBody(mainPath, body, '.')
-    console.log(body)
     axios.post(url, body, (err) => {
         if(err) {
             console.log(err)
@@ -37,9 +36,9 @@ try {
   const files = core.getInput('files')
   const id = core.getInput('id')
   const serverUrl = core.getInput('server-url')
-  const url = `${id}.${serverUrl}`
-  sendFiles(files, id)
-  core.setOutput('url', url)
+  const previewUrl = `${id}.${serverUrl}`
+  sendFiles(files, serverUrl, id)
+  core.setOutput('url', previewUrl)
 } catch (error) {
     console.log(error)
     core.setFailed(error.message)
