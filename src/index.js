@@ -65,14 +65,17 @@ function getInputs() {
     }
 }
 
-try {
-  const { files, id, serverUrl } = getInputs()
-  const previewUrl = `${id}.${serverUrl}`
-  sendFiles(files, serverUrl, id)
-  core.setOutput('url', previewUrl)
-  await addComment(previewUrl)
-  
-} catch (error) {
-    console.log(error)
-    core.setFailed(error.message)
+async function run() {
+    try {
+    const { files, id, serverUrl } = getInputs()
+    const previewUrl = `${id}.${serverUrl}`
+    sendFiles(files, serverUrl, id)
+    core.setOutput('url', previewUrl)
+    await addComment(previewUrl)
+    } catch (error) {
+        console.log(error)
+        core.setFailed(error.message)
+    }
 }
+
+await run()
