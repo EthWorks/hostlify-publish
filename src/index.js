@@ -1,6 +1,8 @@
 const core = require('@actions/core')
+const github = require('@actions/github')
 const fs = require('fs')
 const axios = require('axios')
+const { Octokit } = require('octokit')
 
 function addFilesToBody(mainPath, body, serverPath) {
     fs.readdirSync(mainPath).forEach(fileOrFolderName => {
@@ -32,13 +34,44 @@ function sendFiles(mainPath, url, id) {
     })
 }
 
+async function addComment(commentContent) {
+    const { owner, repo, pullNumber, accessToken } = getInputs()
+    const octokit = new Octokit({ auth: accessToken})
+    await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
+        owner,
+        repo,
+        pull_number: pullNumber,
+        body: commentContent
+    })
+}
+
+function getInputs() {
+    const files = core.getInput('files')
+    const id = core.getInput('id')
+    const serverUrl = core.getInput('server-url')
+    const owner = core.getInput('owner')
+    const repo = core.getInput('repo')
+    const pullNumber = core.getInput('pull_number')
+    const accessToken = core.getInput('access-token')
+
+    return {
+        files,
+        id,
+        serverUrl,
+        owner,
+        repo,
+        pullNumber,
+        accessToken
+    }
+}
+
 try {
-  const files = core.getInput('files')
-  const id = core.getInput('id')
-  const serverUrl = core.getInput('server-url')
+  const { files, id, serverUrl } = getInputs()
   const previewUrl = `${id}.${serverUrl}`
   sendFiles(files, serverUrl, id)
   core.setOutput('url', previewUrl)
+  await addComment(previewUrl)
+  
 } catch (error) {
     console.log(error)
     core.setFailed(error.message)
