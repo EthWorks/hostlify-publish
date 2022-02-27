@@ -37,7 +37,7 @@ function sendFiles(mainPath, url, id) {
 async function addComment(commentContent) {
     const { owner, repo, pullNumber, accessToken } = getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    const urlHtml = `<a href="${commentContent}">${commentContent}</a>`
+    const urlHtml = `<a href="http://${commentContent}">${commentContent}</a>`
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
