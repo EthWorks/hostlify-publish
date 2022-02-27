@@ -37,10 +37,10 @@ function sendFiles(mainPath, url, id) {
 async function addComment(commentContent) {
     const { owner, repo, pullNumber, accessToken } = getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
+    await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
-        pull_number: pullNumber,
+        issue_number: pullNumber,
         body: commentContent
     })
 }
