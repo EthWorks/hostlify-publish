@@ -46,9 +46,9 @@ async function getPRNumber() {
 }
 
 async function addComment(commentContent) {
-    const { owner, repo, accessToken } = await getInputs()
+    const { owner, repo, accessToken, id } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    const urlHtml = `<a href="http://${commentContent}">${commentContent}</a>`
+    const urlHtml = `:rocket: A preview build for [${id}] was deployed to:</br><a href="http://${commentContent}">${commentContent}</a>`
     const issue_number = await getPRNumber()
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
