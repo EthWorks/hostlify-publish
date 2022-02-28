@@ -1,8 +1,9 @@
 # This action uploads all files and directories from the source directory to the specified server
-uses: ethworks/hostlify-publish@v3.7
-    with:
-        files: <path_to_root>
-        server-url: <server_url_with_nginx>
-        owner: EthWorks
-        repo: hostlify
-        access-token: ${{ secrets.GITHUB_TOKEN }}
+
+    uses: ethworks/hostlify-publish@v3.7
+        with:
+            files: <path_to_root>
+            server-url: <server_url_with_nginx>
+            owner: EthWorks
+            repo: hostlify
+            access-token: ${{ secrets.GITHUB_TOKEN }}
