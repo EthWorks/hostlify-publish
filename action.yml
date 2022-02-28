@@ -13,9 +13,6 @@ inputs:
   repo:
     description: 'Repo name'
     required: true
-  pull_number:
-    description: 'PR number'
-    required: true
   server-url:
     description: 'Url of preview server'
     default: test

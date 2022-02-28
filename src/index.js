@@ -42,7 +42,7 @@ async function getPRNumber() {
         repo,
         commit_sha: id
     })
-    console.log(commits.data[0].number)
+    return commits.data[0].number
 }
 
 async function addComment(commentContent) {
@@ -63,7 +63,7 @@ function getInputs() {
     const serverUrl = core.getInput('server-url')
     const owner = core.getInput('owner')
     const repo = core.getInput('repo')
-    const pullNumber = core.getInput('pull_number')
+    const pullNumber = await getPRNumber()
     const accessToken = core.getInput('access-token')
 
     return {
@@ -85,7 +85,6 @@ async function run() {
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
     await addComment(previewUrl)
-    await getPRNumber()
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
