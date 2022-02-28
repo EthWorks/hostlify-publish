@@ -78,8 +78,8 @@ function getInputs() {
 async function run() {
     try {
     const { files, serverUrl } = getInputs()
-    const id = github.sha
-    console.log(github.context)
+    const id = github.context.sha
+    console.log(github.context.sha)
     const previewUrl = `${id}.${serverUrl}`
     sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
