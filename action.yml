@@ -4,9 +4,6 @@ inputs:
   files:
     description: 'Build folder'
     required: true
-  id:
-    description: 'Commit id'
-    required: true
   access-token:
     description: 'Access token'
     required: true
