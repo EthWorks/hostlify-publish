@@ -23,11 +23,11 @@ function addFilesToBody(mainPath, body, serverPath) {
     return body
 }
 
-function sendFiles(mainPath, url, id) {
+async function sendFiles(mainPath, url, id) {
     const serverUrl = `http://${url}/upload/${id}`
     let body = {}
     body = addFilesToBody(mainPath, body, '.')
-    axios.post(serverUrl, body, (err) => {
+    await axios.post(serverUrl, body, (err) => {
         if(err) {
             console.log(err)
         }
@@ -81,7 +81,8 @@ async function run() {
     try {
     const { files, serverUrl, id } = getInputs()
     const previewUrl = `${id}.${serverUrl}`
-    sendFiles(files, serverUrl, id)
+    console.log(github)
+    await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
     await addComment(previewUrl)
     await getPRNumber()
