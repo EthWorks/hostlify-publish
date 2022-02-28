@@ -35,7 +35,7 @@ async function sendFiles(mainPath, url, id) {
 }
 
 async function getPRNumber() {
-    const { owner, repo, id, accessToken } = getInputs()
+    const { owner, repo, id, accessToken } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
     const commits =  await octokit.request('GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls', {
         owner,
@@ -46,7 +46,7 @@ async function getPRNumber() {
 }
 
 async function addComment(commentContent) {
-    const { owner, repo, pullNumber, accessToken } = getInputs()
+    const { owner, repo, pullNumber, accessToken } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
     const urlHtml = `<a href="http://${commentContent}">${commentContent}</a>`
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
@@ -57,7 +57,7 @@ async function addComment(commentContent) {
     })
 }
 
-function getInputs() {
+async function getInputs() {
     const id = github.context.sha
     const files = core.getInput('files')
     const serverUrl = core.getInput('server-url')
@@ -79,7 +79,7 @@ function getInputs() {
 
 async function run() {
     try {
-    const { files, serverUrl, id } = getInputs()
+    const { files, serverUrl, id } = await getInputs()
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
