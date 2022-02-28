@@ -59,7 +59,7 @@ async function addComment(commentContent) {
 }
 
 async function getInputs() {
-    const id = github.context.sha.slice(0, 8)
+    const id = github.context.sha.slice(0, 7)
     const files = core.getInput('files')
     const serverUrl = core.getInput('server-url')
     const owner = core.getInput('owner')
