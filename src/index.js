@@ -42,7 +42,7 @@ async function getPRNumber() {
         repo,
         commit_sha: id
     })
-    console.log(commits)
+    console.log(commits.data[0].number)
 }
 
 async function addComment(commentContent) {
