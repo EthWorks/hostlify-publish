@@ -46,7 +46,6 @@ function sendFiles(mainPath, url, id) {
 async function addComment(commentContent) {
     const { owner, repo, pullNumber, accessToken } = getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    console.log(github)
     const urlHtml = `<a href="http://${commentContent}">${commentContent}</a>`
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
@@ -78,7 +77,9 @@ function getInputs() {
 
 async function run() {
     try {
-    const { files, id, serverUrl } = getInputs()
+    const { files, serverUrl } = getInputs()
+    const id = github.sha
+    console.log(github.commits)
     const previewUrl = `${id}.${serverUrl}`
     sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
