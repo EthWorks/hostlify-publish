@@ -46,13 +46,14 @@ async function getPRNumber() {
 }
 
 async function addComment(commentContent) {
-    const { owner, repo, pullNumber, accessToken } = await getInputs()
+    const { owner, repo, accessToken } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
     const urlHtml = `<a href="http://${commentContent}">${commentContent}</a>`
+    const issue_number = await getPRNumber()
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
-        issue_number: pullNumber,
+        issue_number,
         body: urlHtml
     })
 }
@@ -63,7 +64,6 @@ async function getInputs() {
     const serverUrl = core.getInput('server-url')
     const owner = core.getInput('owner')
     const repo = core.getInput('repo')
-    const pullNumber = await getPRNumber()
     const accessToken = core.getInput('access-token')
 
     return {
@@ -72,7 +72,6 @@ async function getInputs() {
         serverUrl,
         owner,
         repo,
-        pullNumber,
         accessToken
     }
 }
