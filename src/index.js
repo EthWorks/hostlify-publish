@@ -27,7 +27,10 @@ async function sendFiles(mainPath, url, id) {
     const serverUrl = `http://${url}/upload/${id}`
     let body = {}
     body = addFilesToBody(mainPath, body, '.')
-    await axios.post(serverUrl, body, (err) => {
+    await axios.post(serverUrl, body, { 
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity
+    }, (err) => {
         if(err) {
             console.log(err)
         }
