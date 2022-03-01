@@ -16,7 +16,7 @@ async function sendFile(fileObject, currentServerPath, serverUrl) {
 
 async function sendSingleFiles(mainPath, serverPath, serverUrl) {
     const directoryContent = fs.readdirSync(mainPath)
-    directoryContent.forEach(fileOrFolderName => {
+    for(fileOrFolderName of directoryContent) {
         const currentLocalPath = `${mainPath}/${fileOrFolderName}`
         const currentServerPath = `${serverPath}/${fileOrFolderName}`
         if(fs.lstatSync(currentLocalPath).isDirectory()) {
@@ -30,7 +30,7 @@ async function sendSingleFiles(mainPath, serverPath, serverUrl) {
             }
             await sendFile(fileObject, currentServerPath, serverUrl)
         }
-    })
+    }
 }
 
 async function sendFiles(mainPath, url, id) {
