@@ -4,23 +4,12 @@ const fs = require('fs')
 const axios = require('axios')
 const { Octokit } = require('octokit')
 
-async function sendFile(fileObject, currentServerPath, serverUrl) {
-    const body = {}
-    body[currentServerPath] = fileObject
-    await axios.post(serverUrl, body, (err) => {
-        if(err) {
-            console.log(err)
-        }
-    })
-}
-
-async function sendSingleFiles(mainPath, serverPath, serverUrl) {
-    const directoryContent = fs.readdirSync(mainPath)
-    for(fileOrFolderName of directoryContent) {
+function addFilesToBody(mainPath, body, serverPath) {
+    fs.readdirSync(mainPath).forEach(fileOrFolderName => {
         const currentLocalPath = `${mainPath}/${fileOrFolderName}`
         const currentServerPath = `${serverPath}/${fileOrFolderName}`
         if(fs.lstatSync(currentLocalPath).isDirectory()) {
-            await sendSingleFiles(currentLocalPath, currentServerPath, serverUrl)
+            body = addFilesToBody(currentLocalPath, body, currentServerPath)
         }
         else {
             const fileData = fs.readFileSync(currentLocalPath)
@@ -28,14 +17,21 @@ async function sendSingleFiles(mainPath, serverPath, serverUrl) {
                 name: fileOrFolderName,
                 data: fileData.toString()
             }
-            await sendFile(fileObject, currentServerPath, serverUrl)
+            body[currentServerPath] = fileObject
         }
-    }
+    })
+    return body
 }
 
 async function sendFiles(mainPath, url, id) {
     const serverUrl = `http://${url}/upload/${id}`
-    await sendSingleFiles(mainPath, '.', serverUrl)
+    let body = {}
+    body = addFilesToBody(mainPath, body, '.')
+    await axios.post(serverUrl, body, (err) => {
+        if(err) {
+            console.log(err)
+        }
+    })
 }
 
 async function addComment(commentContent) {
