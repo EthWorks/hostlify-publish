@@ -7,3 +7,4 @@
             owner: EthWorks
             repo: hostlify
             access-token: ${{ secrets.GITHUB_TOKEN }}
+            pullNumber: ${{ github.event.number }}
