@@ -10,21 +10,17 @@ async function sendFile(fileObject, currentServerPath, serverUrl) {
     await axios.post(serverUrl, body, (err) => {
         if(err) {
             console.log(err)
-            return false
         }
     })
-    return true
 }
 
 async function sendSingleFiles(mainPath, serverPath, serverUrl) {
-    fs.readdirSync(mainPath).forEach(fileOrFolderName => {
+    const directoryContent = fs.readdirSync(mainPath)
+    directoryContent.forEach(fileOrFolderName => {
         const currentLocalPath = `${mainPath}/${fileOrFolderName}`
         const currentServerPath = `${serverPath}/${fileOrFolderName}`
         if(fs.lstatSync(currentLocalPath).isDirectory()) {
-            const result = await sendSingleFiles(currentLocalPath, currentServerPath, serverUrl)
-            if(!result) {
-                return false
-            }
+            await sendSingleFiles(currentLocalPath, currentServerPath, serverUrl)
         }
         else {
             const fileData = fs.readFileSync(currentLocalPath)
@@ -32,18 +28,14 @@ async function sendSingleFiles(mainPath, serverPath, serverUrl) {
                 name: fileOrFolderName,
                 data: fileData.toString()
             }
-            const result = await sendFile(fileObject, currentServerPath, serverUrl)
-            if(!result) {
-                return false
-            }
+            await sendFile(fileObject, currentServerPath, serverUrl)
         }
     })
 }
 
 async function sendFiles(mainPath, url, id) {
     const serverUrl = `http://${url}/upload/${id}`
-    const result = await sendSingleFiles(mainPath, '.', serverUrl)
-    return result
+    await sendSingleFiles(mainPath, '.', serverUrl)
 }
 
 async function getPRNumber() {
@@ -92,10 +84,9 @@ async function run() {
     try {
     const { files, serverUrl, id } = await getInputs()
     const previewUrl = `${id}.${serverUrl}`
-    const result = await sendFiles(files, serverUrl, id)
+    await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
     await addComment(previewUrl)
-    return result
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
