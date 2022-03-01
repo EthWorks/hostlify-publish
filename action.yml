@@ -10,6 +10,9 @@ inputs:
   owner:
     description: 'Owner name'
     required: true
+  pullNumber:
+    description: 'PR number'
+    required: true
   repo:
     description: 'Repo name'
     required: true
