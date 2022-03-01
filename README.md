@@ -1,6 +1,6 @@
 # This action uploads all files and directories from the source directory to the specified server
 
-    uses: ethworks/hostlify-publish@v3.7
+    uses: ethworks/hostlify-publish@v3.15
         with:
             files: <path_to_root>
             server-url: <server_url_with_nginx>
