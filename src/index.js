@@ -1,13 +1,13 @@
-const core = require('@actions/core')
-const github = require('@actions/github')
-const fs = require('fs')
-const axios = require('axios')
-const { Octokit } = require('octokit')
+import { getInput, setOutput, setFailed } from '@actions/core'
+import { context } from '@actions/github'
+import { readdirSync, lstatSync, readFileSync } from 'fs'
+import { post } from 'axios'
+import { Octokit } from 'octokit'
 
 async function sendFile(fileObject, currentServerPath, serverUrl) {
     const body = {}
     body[currentServerPath] = fileObject
-    await axios.post(serverUrl, body, (err) => {
+    await post(serverUrl, body, (err) => {
         if(err) {
             console.log(err)
         }
@@ -15,14 +15,14 @@ async function sendFile(fileObject, currentServerPath, serverUrl) {
 }
 
 async function sendSingleFiles(mainPath, serverPath, serverUrl) {
-    fs.readdirSync(mainPath).forEach(fileOrFolderName => {
+    readdirSync(mainPath).forEach(fileOrFolderName => {
         const currentLocalPath = `${mainPath}/${fileOrFolderName}`
         const currentServerPath = `${serverPath}/${fileOrFolderName}`
-        if(fs.lstatSync(currentLocalPath).isDirectory()) {
+        if(lstatSync(currentLocalPath).isDirectory()) {
             await sendSingleFiles(currentLocalPath, currentServerPath, serverUrl)
         }
         else {
-            const fileData = fs.readFileSync(currentLocalPath)
+            const fileData = readFileSync(currentLocalPath)
             const fileObject = {
                 name: fileOrFolderName,
                 data: fileData.toString()
@@ -62,12 +62,12 @@ async function addComment(commentContent) {
 }
 
 async function getInputs() {
-    const id = github.context.sha.slice(0, 7)
-    const files = core.getInput('files')
-    const serverUrl = core.getInput('server-url')
-    const owner = core.getInput('owner')
-    const repo = core.getInput('repo')
-    const accessToken = core.getInput('access-token')
+    const id = context.sha.slice(0, 7)
+    const files = getInput('files')
+    const serverUrl = getInput('server-url')
+    const owner = getInput('owner')
+    const repo = getInput('repo')
+    const accessToken = getInput('access-token')
 
     return {
         files,
@@ -84,11 +84,11 @@ async function run() {
     const { files, serverUrl, id } = await getInputs()
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
-    core.setOutput('url', previewUrl)
+    setOutput('url', previewUrl)
     await addComment(previewUrl)
     } catch (error) {
         console.log(error)
-        core.setFailed(error.message)
+        setFailed(error.message)
     }
 }
 
