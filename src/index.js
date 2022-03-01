@@ -10,8 +10,10 @@ async function sendFile(fileObject, currentServerPath, serverUrl) {
     await axios.post(serverUrl, body, (err) => {
         if(err) {
             console.log(err)
+            return false
         }
     })
+    return true
 }
 
 async function sendSingleFiles(mainPath, serverPath, serverUrl) {
@@ -19,7 +21,10 @@ async function sendSingleFiles(mainPath, serverPath, serverUrl) {
         const currentLocalPath = `${mainPath}/${fileOrFolderName}`
         const currentServerPath = `${serverPath}/${fileOrFolderName}`
         if(fs.lstatSync(currentLocalPath).isDirectory()) {
-            await sendSingleFiles(currentLocalPath, currentServerPath, serverUrl)
+            const result = await sendSingleFiles(currentLocalPath, currentServerPath, serverUrl)
+            if(!result) {
+                return false
+            }
         }
         else {
             const fileData = fs.readFileSync(currentLocalPath)
@@ -27,14 +32,18 @@ async function sendSingleFiles(mainPath, serverPath, serverUrl) {
                 name: fileOrFolderName,
                 data: fileData.toString()
             }
-            await sendFile(fileObject, currentServerPath, serverUrl)
+            const result = await sendFile(fileObject, currentServerPath, serverUrl)
+            if(!result) {
+                return false
+            }
         }
     })
 }
 
 async function sendFiles(mainPath, url, id) {
     const serverUrl = `http://${url}/upload/${id}`
-    await sendSingleFiles(mainPath, '.', serverUrl)
+    const result = await sendSingleFiles(mainPath, '.', serverUrl)
+    return result
 }
 
 async function getPRNumber() {
@@ -83,9 +92,10 @@ async function run() {
     try {
     const { files, serverUrl, id } = await getInputs()
     const previewUrl = `${id}.${serverUrl}`
-    await sendFiles(files, serverUrl, id)
+    const result = await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
     await addComment(previewUrl)
+    return result
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
