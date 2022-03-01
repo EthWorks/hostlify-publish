@@ -4,12 +4,22 @@ const fs = require('fs')
 const axios = require('axios')
 const { Octokit } = require('octokit')
 
-function addFilesToBody(mainPath, body, serverPath) {
+async function sendFile(fileObject, currentServerPath, serverUrl) {
+    const body = {}
+    body[currentServerPath] = fileObject
+    await axios.post(serverUrl, body, (err) => {
+        if(err) {
+            console.log(err)
+        }
+    })
+}
+
+async function sendSingleFiles(mainPath, serverPath, serverUrl) {
     fs.readdirSync(mainPath).forEach(fileOrFolderName => {
         const currentLocalPath = `${mainPath}/${fileOrFolderName}`
         const currentServerPath = `${serverPath}/${fileOrFolderName}`
         if(fs.lstatSync(currentLocalPath).isDirectory()) {
-            body = addFilesToBody(currentLocalPath, body, currentServerPath)
+            await sendSingleFiles(currentLocalPath, currentServerPath, serverUrl)
         }
         else {
             const fileData = fs.readFileSync(currentLocalPath)
@@ -17,21 +27,14 @@ function addFilesToBody(mainPath, body, serverPath) {
                 name: fileOrFolderName,
                 data: fileData.toString()
             }
-            body[currentServerPath] = fileObject
+            await sendFile(fileObject, currentServerPath, serverUrl)
         }
     })
-    return body
 }
 
 async function sendFiles(mainPath, url, id) {
     const serverUrl = `http://${url}/upload/${id}`
-    let body = {}
-    body = addFilesToBody(mainPath, body, '.')
-    await axios.post(serverUrl, body, (err) => {
-        if(err) {
-            console.log(err)
-        }
-    })
+    await sendSingleFiles(mainPath, '.', serverUrl)
 }
 
 async function getPRNumber() {
