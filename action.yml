@@ -7,12 +7,6 @@ inputs:
   access-token:
     description: 'Access token'
     required: true
-  owner:
-    description: 'Owner name'
-    required: true
-  repo:
-    description: 'Repo name'
-    required: true
   server-url:
     description: 'Url of preview server'
     default: test
