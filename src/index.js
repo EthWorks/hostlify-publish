@@ -38,20 +38,15 @@ async function sendFiles(mainPath, url, id) {
 }
 
 async function addComment(commentContent) {
-    const { owner, repo, accessToken, id } = await getInputs()
-    const issue_number = await getPRNumber()
+    const { owner, repo, accessToken, id, pullNumber } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
     const urlHtml = `:rocket: A preview build for ${id} was deployed to: <a href="http://${commentContent}">${commentContent}</a>`
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
-        issue_number,
+        issue_number: pullNumber,
         body: urlHtml
     })
-}
-
-function getPRNumber() {
-    return github.context.payload.number
 }
 
 async function getInputs() {
@@ -61,6 +56,7 @@ async function getInputs() {
     const repo = github.context.payload.repository.name
     const owner = github.context.payload.organization.login.toString().toLowerCase()
     const accessToken = core.getInput('access-token')
+    const pullNumber = github.context.payload.number
 
     return {
         files,
@@ -69,13 +65,13 @@ async function getInputs() {
         owner,
         repo,
         accessToken,
+        pullNumber,
     }
 }
 
 async function run() {
     try {
-    const { files, serverUrl, id, repo, owner } = await getInputs()
-    console.log(repo, owner)
+    const { files, serverUrl, id } = await getInputs()
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
