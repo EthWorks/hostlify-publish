@@ -58,8 +58,8 @@ async function getInputs() {
     const id = github.context.sha.slice(0, 7)
     const files = core.getInput('files')
     const serverUrl = core.getInput('server-url')
-    const owner = github.context.payload.repository.name
-    const repo = github.context.payload.organization.login.toString().toLowerCase()
+    const repo = github.context.payload.repository.name
+    const owner = github.context.payload.organization.login.toString().toLowerCase()
     const accessToken = core.getInput('access-token')
 
     return {
