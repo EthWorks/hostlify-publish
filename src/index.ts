@@ -1,9 +1,11 @@
+import fs from 'fs'
+
 import core from '@actions/core'
 import github from '@actions/github'
-import fs from 'fs'
 import axios from 'axios'
 import { Octokit } from 'octokit'
-import { Files } from './types'
+
+import { Files, Inputs } from './types'
 
 function addFilesToBody(mainPath: string, body: Files, serverPath: string) {
     fs.readdirSync(mainPath).forEach(fileOrFolderName => {
@@ -46,16 +48,6 @@ async function addComment(commentContent: string) {
         issue_number: pullNumber,
         body: urlHtml
     })
-}
-
-interface Inputs {
-    files: string
-    id: string
-    serverUrl: string
-    owner: string
-    repo: string
-    accessToken: string
-    pullNumber: number
 }
 
 async function getInputs() {
