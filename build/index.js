@@ -49,10 +49,11 @@ async function addComment(commentContent) {
     });
 }
 async function getInputs() {
+    var _a;
     const id = github_1.default.context.sha.slice(0, 7);
     const files = core_1.default.getInput('files');
     const serverUrl = core_1.default.getInput('server-url');
-    const repo = github_1.default.context.payload.repository.name;
+    const repo = (_a = github_1.default.context.payload.repository) === null || _a === void 0 ? void 0 : _a.name;
     const owner = github_1.default.context.payload.organization.login.toString().toLowerCase();
     const accessToken = core_1.default.getInput('access-token');
     const pullNumber = github_1.default.context.payload.number;
