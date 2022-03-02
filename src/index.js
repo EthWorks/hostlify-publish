@@ -74,8 +74,8 @@ async function getInputs() {
 
 async function run() {
     try {
-    const { files, serverUrl, id } = await getInputs()
-    console.log()
+    const { files, serverUrl, id, repo, owner } = await getInputs()
+    console.log(repo, owner)
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
