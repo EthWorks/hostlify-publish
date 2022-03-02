@@ -16,4 +16,4 @@ outputs:
     description: 'Url to preview'
 runs:
   using: 'node16'
-  main: 'src/index.js'
+  main: 'build/index.js'
