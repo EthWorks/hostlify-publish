@@ -94,8 +94,6 @@ async function getPreviousCommitSha() {
     const commits = await getCommitsInPR()
     const previousCommit = commits.data[commits.data.length - 2]
 
-    console.log(previousCommit)
-
     return previousCommit.sha
 }
 
@@ -171,6 +169,7 @@ async function run() {
         core.setOutput('url', previewUrl)
         const commentId = await getPreviewCommentId()
         commentId ? (await updateComment()) : (await addComment())
+        console.log(previousCommitId)
         previousCommitId ? (await deletePreviousPreview()) : undefined
     } catch (error) {
         console.log(error)
