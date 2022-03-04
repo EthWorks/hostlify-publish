@@ -4,6 +4,8 @@ const fs = require('fs')
 const axios = require('axios')
 const { Octokit } = require('octokit')
 
+const commentBegining = `:money_with_wings: A preview build for`
+
 function addFilesToBody(mainPath, body, serverPath) {
     fs.readdirSync(mainPath).forEach(fileOrFolderName => {
         const currentLocalPath = `${mainPath}/${fileOrFolderName}`
@@ -23,10 +25,11 @@ function addFilesToBody(mainPath, body, serverPath) {
     return body
 }
 
-async function sendFiles(mainPath, url, id) {
+async function sendFiles() {
+    const { files, id, serverUrl: url } = await getContext()
     const serverUrl = `http://${url}/upload/${id}`
     let body = {}
-    body = addFilesToBody(mainPath, body, '.')
+    body = addFilesToBody(files, body, '.')
     await axios.post(serverUrl, body, { 
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
@@ -38,7 +41,7 @@ async function sendFiles(mainPath, url, id) {
 }
 
 async function getCommitsInPR() {    
-    const { owner, repo, accessToken, pullNumber } = await getInputs()
+    const { owner, repo, accessToken, pullNumber } = getInputs()
     const octokit = new Octokit({ auth: accessToken})
     const commits = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/commits', {
         owner,
@@ -49,7 +52,7 @@ async function getCommitsInPR() {
 }
 
 async function getComments() {
-    const { owner, repo, accessToken, pullNumber } = await getInputs()
+    const { owner, repo, accessToken, pullNumber } =  getInputs()
     const octokit = new Octokit({ auth: accessToken})
     const comments = await octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
@@ -61,19 +64,23 @@ async function getComments() {
 
 async function getPreviewCommentId() {
     const comments = await getComments()
-    const commentRegex = `:rocket: A preview build for`
     for(const comment of comments.data) {
-        if(comment.body.includes(commentRegex)) {
+        if(comment.body.includes(commentBegining)) {
             return comment.id
         }
     }
     return undefined
 }
 
-async function addComment(commentContent) {
-    const { owner, repo, accessToken, id, pullNumber } = await getInputs()
-    const octokit = new Octokit({ auth: accessToken})
-    const urlHtml = `:money_with_wings: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank">${commentContent}</a>`
+async function getCurrentCommitSha() {
+    const commits = await getCommitsInPR()
+    const currentCommit = commits.data.pop()
+
+    return currentCommit.sha
+}
+
+async function addComment() {
+    const { owner, repo, octokit, pullNumber, urlHtml } = await getContext()
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
@@ -82,10 +89,8 @@ async function addComment(commentContent) {
     })
 }
 
-async function updateComment(commentId, commentContent) {
-    const { owner, repo, accessToken, id } = await getInputs()
-    const octokit = new Octokit({ auth: accessToken})
-    const urlHtml = `:money_with_wings: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank">${commentContent}</a>`
+async function updateComment() {
+    const { commentId, owner, repo, octokit, urlHtml } = getContext()
     await octokit.request('PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}', {
         owner,
         repo,
@@ -94,8 +99,7 @@ async function updateComment(commentId, commentContent) {
     })
 }
 
-async function getInputs() {
-    const id = github.context.payload.after.slice(0, 7)
+function getInputs() {
     const files = core.getInput('files')
     const serverUrl = core.getInput('server-url')
     const repo = github.context.payload.repository.name
@@ -103,10 +107,8 @@ async function getInputs() {
     const accessToken = core.getInput('access-token')
     const pullNumber = github.context.payload.number
 
-
     return {
         files,
-        id,
         serverUrl,
         owner,
         repo,
@@ -115,16 +117,35 @@ async function getInputs() {
     }
 }
 
+async function getContext() {
+    const { accessToken, serverUrl, files, owner, repo, pullNumber } = getInputs()
+    const octokit = new Octokit({ auth: accessToken})
+    const id = await getCurrentCommitSha().slice(0, 7)
+    const commentId = await getPreviewCommentId()
+    const previewUrl = `${id}.${serverUrl}`
+    const urlHtml = `${commentBegining} ${id} was deployed to: <a href="http://${previewUrl}" target="_blank">${previewUrl}</a>`
+
+    return {
+        accessToken,
+        commentId,
+        files,
+        octokit,
+        owner,
+        previewUrl,
+        pullNumber,
+        repo,
+        serverUrl,
+        urlHtml,
+    }
+}
+
 async function run() {
     try {
-    const { files, serverUrl, id } = await getInputs()
-    const commits = await getCommitsInPR()
-    console.log(commits)
-    const previewUrl = `${id}.${serverUrl}`
-    await sendFiles(files, serverUrl, id)
-    core.setOutput('url', previewUrl)
-    const commentId = await getPreviewCommentId()
-    commentId ? (await updateComment(commentId, previewUrl)) : (await addComment(previewUrl))
+        const { previewUrl } = await getContext()
+        await sendFiles()
+        core.setOutput('url', previewUrl)
+        const commentId = await getPreviewCommentId()
+        commentId ? (await updateComment()) : (await addComment())
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
