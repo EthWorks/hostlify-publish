@@ -120,13 +120,15 @@ function getInputs() {
 async function getContext() {
     const { accessToken, serverUrl, files, owner, repo, pullNumber } = getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    const id = await getCurrentCommitSha().slice(0, 7)
+    const commitId = await getCurrentCommitSha()
+    const id = commitId.slice(0, 7)
     const commentId = await getPreviewCommentId()
     const previewUrl = `${id}.${serverUrl}`
     const urlHtml = `${commentBegining} ${id} was deployed to: <a href="http://${previewUrl}" target="_blank">${previewUrl}</a>`
 
     return {
         accessToken,
+        id,
         commentId,
         files,
         octokit,
