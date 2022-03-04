@@ -1,6 +1,6 @@
 export interface File {
     name: string
-    data: string
+    data: Buffer
 }
 
 export interface Files {

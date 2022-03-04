@@ -2,7 +2,7 @@
   "name": "hostlify-publish",
   "version": "1.0.0",
   "description": "",
-  "main": "build/index.js",
+  "main": "js/index.js",
   "scripts": {
     "build": "tsc",
     "lint": "eslint './src/**/*.ts' --cache",

@@ -1,13 +1,10 @@
-import fs from 'fs'
+const core = require('@actions/core')
+const github = require('@actions/github')
+const fs = require('fs')
+const axios = require('axios')
+const { Octokit } = require('octokit')
 
-import core from '@actions/core'
-import github from '@actions/github'
-import axios from 'axios'
-import { Octokit } from 'octokit'
-
-import { Files, Inputs } from './types'
-
-function addFilesToBody(mainPath: string, body: Files, serverPath: string) {
+function addFilesToBody(mainPath, body, serverPath) {
     fs.readdirSync(mainPath).forEach(fileOrFolderName => {
         const currentLocalPath = `${mainPath}/${fileOrFolderName}`
         const currentServerPath = `${serverPath}/${fileOrFolderName}`
@@ -18,7 +15,7 @@ function addFilesToBody(mainPath: string, body: Files, serverPath: string) {
             const fileData = fs.readFileSync(currentLocalPath)
             const fileObject = {
                 name: fileOrFolderName,
-                data: fileData,
+                data: fileData
             }
             body[currentServerPath] = fileObject
         }
@@ -26,22 +23,24 @@ function addFilesToBody(mainPath: string, body: Files, serverPath: string) {
     return body
 }
 
-async function sendFiles(mainPath: string, url: string, id: string) {
+async function sendFiles(mainPath, url, id) {
     const serverUrl = `http://${url}/upload/${id}`
-    const body = addFilesToBody(mainPath, {}, '.')
-    const response = await axios.post(serverUrl, body, { 
+    let body = {}
+    body = addFilesToBody(mainPath, body, '.')
+    await axios.post(serverUrl, body, { 
         maxContentLength: Infinity,
-        maxBodyLength: Infinity,
+        maxBodyLength: Infinity
+    }, (err) => {
+        if(err) {
+            console.log(err)
+        }
     })
-    if(response.status !== 201) {
-        throw new Error(`Server response status is ${response.status}`)
-    }
 }
 
-async function addComment(commentContent: string) {
+async function addComment(commentContent) {
     const { owner, repo, accessToken, id, pullNumber } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    const urlHtml = `:rocket: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank">${commentContent}</a>`
+    const urlHtml = `:rocket: A preview build for ${id} was deployed to: <a href="http://${commentContent}">${commentContent}</a>`
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
@@ -54,7 +53,7 @@ async function getInputs() {
     const id = github.context.sha.slice(0, 7)
     const files = core.getInput('files')
     const serverUrl = core.getInput('server-url')
-    const repo = github.context.payload.repository?.name
+    const repo = github.context.payload.repository.name
     const owner = github.context.payload.organization.login.toString().toLowerCase()
     const accessToken = core.getInput('access-token')
     const pullNumber = github.context.payload.number
@@ -67,7 +66,7 @@ async function getInputs() {
         repo,
         accessToken,
         pullNumber,
-    } as Inputs
+    }
 }
 
 async function run() {
@@ -79,7 +78,7 @@ async function run() {
     await addComment(previewUrl)
     } catch (error) {
         console.log(error)
-        core.setFailed(error)
+        core.setFailed(error.message)
     }
 }
 
