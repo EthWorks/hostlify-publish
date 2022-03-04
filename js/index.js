@@ -62,7 +62,7 @@ async function getPreviewCommentId() {
 async function addComment(commentContent) {
     const { owner, repo, accessToken, id, pullNumber } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    const urlHtml = `:rocket: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank">${commentContent}</a>`
+    const urlHtml = `:money_with_wings: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank">${commentContent}</a>`
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
@@ -74,7 +74,7 @@ async function addComment(commentContent) {
 async function updateComment(commentId, commentContent) {
     const { owner, repo, accessToken, id } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    const urlHtml = `:rocket: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank">${commentContent}</a>`
+    const urlHtml = `:money_with_wings: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank">${commentContent}</a>`
     await octokit.request('PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}', {
         owner,
         repo,
@@ -107,6 +107,7 @@ async function getInputs() {
 async function run() {
     try {
     const { files, serverUrl, id } = await getInputs()
+    console.log(github.context)
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
