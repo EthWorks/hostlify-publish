@@ -111,8 +111,7 @@ async function run() {
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
     const commentId = await getPreviewCommentId()
-    const commentSolve = commentId ? updateComment(commentId, previewUrl) : addComment(previewUrl)
-    await commentSolve()
+    commentId ? (await updateComment(commentId, previewUrl)) : (await addComment(previewUrl))
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
