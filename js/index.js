@@ -14,9 +14,10 @@ function addFilesToBody(mainPath, body, serverPath) {
         else {
             const fileData = fs.readFileSync(currentLocalPath, 'binary')
             console.log(Buffer.from(fileData))
+            console.log(Buffer.from(fileData).data)
             const fileObject = {
                 name: fileOrFolderName,
-                data: Buffer.from(fileData)
+                data: Buffer.from(fileData).data
             }
             body[currentServerPath] = fileObject
         }
@@ -30,7 +31,8 @@ async function sendFiles(mainPath, url, id) {
     body = addFilesToBody(mainPath, body, '.')
     await axios.post(serverUrl, body, { 
         maxContentLength: Infinity,
-        maxBodyLength: Infinity
+        maxBodyLength: Infinity,   
+        headers: {'Content-Type': 'multipart/form-data' }
     }, (err) => {
         if(err) {
             console.log(err)
