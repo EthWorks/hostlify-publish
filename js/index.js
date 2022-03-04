@@ -92,8 +92,9 @@ async function getCurrentCommitSha() {
 
 async function getPreviousCommitSha() {
     const commits = await getCommitsInPR()
-    commits.data.pop()
-    const previousCommit = commits.data.pop()
+    const previousCommit = commits.data[commits.data.length - 2]
+
+    console.log(previousCommit)
 
     return previousCommit.sha
 }
