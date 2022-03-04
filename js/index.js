@@ -12,11 +12,11 @@ function addFilesToBody(mainPath, body, serverPath) {
             body = addFilesToBody(currentLocalPath, body, currentServerPath)
         }
         else {
-            const fileData = fs.readFileSync(currentLocalPath, 'utf8')
+            const fileData = fs.readFileSync(currentLocalPath, 'binary')
             console.log(Buffer.from(fileData))
             const fileObject = {
                 name: fileOrFolderName,
-                data: Buffer.from(fileData).toString()
+                data: Buffer.from(fileData)
             }
             body[currentServerPath] = fileObject
         }
