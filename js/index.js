@@ -13,12 +13,9 @@ function addFilesToBody(mainPath, body, serverPath) {
         }
         else {
             const fileData = fs.readFileSync(currentLocalPath)
-            console.log(fileData)
-            console.log(fileData.buffer)
-            console.log(Buffer.from(fileData))
             const fileObject = {
                 name: fileOrFolderName,
-                data: fileData.buffer.toString()
+                data: Buffer.from(fileData)
             }
             body[currentServerPath] = fileObject
         }
