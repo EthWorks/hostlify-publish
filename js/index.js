@@ -164,13 +164,12 @@ async function getContext() {
 
 async function run() {
     try {
-        const { previewUrl, previousCommitId } = await getContext()
+        const { previewUrl, previousId } = await getContext()
         await sendFiles()
-        core.setOutput('url', previewUrl)
         const commentId = await getPreviewCommentId()
         commentId ? (await updateComment()) : (await addComment())
-        console.log(previousCommitId)
-        previousCommitId ? (await deletePreviousPreview()) : undefined
+        previousId ? (await deletePreviousPreview()) : undefined
+        core.setOutput('url', previewUrl)
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
