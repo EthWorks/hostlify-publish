@@ -4,7 +4,7 @@ const fs = require('fs')
 const axios = require('axios')
 const { Octokit } = require('octokit')
 
-const commentBegining = `:money_with_wings: A preview build for`
+const commentBeginning = `:money_with_wings: A preview build for`
 
 function addFilesToBody(mainPath, body, serverPath) {
     fs.readdirSync(mainPath).forEach(fileOrFolderName => {
@@ -76,7 +76,7 @@ async function getComments() {
 async function getPreviewCommentId() {
     const comments = await getComments()
     for(const comment of comments.data) {
-        if(comment.body.includes(commentBegining)) {
+        if(comment.body.includes(commentBeginning)) {
             return comment.id
         }
     }
@@ -144,7 +144,7 @@ async function getContext() {
     const previousId = previousCommitId.slice(0, 7)
     const commentId = await getPreviewCommentId()
     const previewUrl = `${id}.${serverUrl}`
-    const urlHtml = `${commentBegining} ${id} was deployed to: <a href="http://${previewUrl}" target="_blank">${previewUrl}</a>`
+    const urlHtml = `${commentBeginning} ${id} was deployed to: <a href="http://${previewUrl}" target="_blank">${previewUrl}</a>`
 
     return {
         accessToken,
