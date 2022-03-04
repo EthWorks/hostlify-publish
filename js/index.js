@@ -37,6 +37,17 @@ async function sendFiles(mainPath, url, id) {
     })
 }
 
+async function getComments() {
+    const { owner, repo, accessToken, pullNumber } = await getInputs()
+    const octokit = new Octokit({ auth: accessToken})
+    const comments = await octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+        owner,
+        repo,
+        issue_number: pullNumber
+    })
+    return comments
+}
+
 async function addComment(commentContent) {
     const { owner, repo, accessToken, id, pullNumber } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
@@ -77,6 +88,8 @@ async function run() {
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
     await addComment(previewUrl)
+    const comments = await getComments()
+    console.log(comments)
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
