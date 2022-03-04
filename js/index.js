@@ -58,6 +58,7 @@ async function getInputs() {
     const accessToken = core.getInput('access-token')
     const pullNumber = github.context.payload.number
 
+
     return {
         files,
         id,
@@ -71,6 +72,7 @@ async function getInputs() {
 
 async function run() {
     try {
+    console.log(github.context)
     const { files, serverUrl, id } = await getInputs()
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
