@@ -80,8 +80,7 @@ async function getCurrentCommitSha() {
 }
 
 async function addComment() {
-    const { owner, repo, accessToken, pullNumber, urlHtml } = await getContext()
-    const octokit = new Octokit({ auth: accessToken})
+    const { owner, repo, octokit, pullNumber, urlHtml } = await getContext()
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
@@ -91,8 +90,7 @@ async function addComment() {
 }
 
 async function updateComment() {
-    const { commentId, owner, repo, accessToken, urlHtml } = getContext()
-    const octokit = new Octokit({ auth: accessToken})
+    const { commentId, owner, repo, octokit, urlHtml } = await getContext()
     await octokit.request('PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}', {
         owner,
         repo,
