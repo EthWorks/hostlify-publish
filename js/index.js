@@ -48,14 +48,37 @@ async function getComments() {
     return comments
 }
 
+async function getPreviewCommentId() {
+    const comments = await getComments()
+    const commentRegex = `:rocket: A preview build for`
+    for(const comment of comments.data) {
+        if(comment.body.includes(commentRegex)) {
+            return comment.id
+        }
+    }
+    return undefined
+}
+
 async function addComment(commentContent) {
     const { owner, repo, accessToken, id, pullNumber } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
-    const urlHtml = `:rocket: A preview build for ${id} was deployed to: <a href="http://${commentContent}">${commentContent}</a>`
+    const urlHtml = `:rocket: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank>${commentContent}</a>`
     await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
         owner,
         repo,
         issue_number: pullNumber,
+        body: urlHtml
+    })
+}
+
+async function updateComment(commentId, commentContent) {
+    const { owner, repo, accessToken, id } = await getInputs()
+    const octokit = new Octokit({ auth: accessToken})
+    const urlHtml = `:rocket: A preview build for ${id} was deployed to: <a href="http://${commentContent}" target="_blank>${commentContent}</a>`
+    await octokit.request('PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}', {
+        owner,
+        repo,
+        comment_id: commentId,
         body: urlHtml
     })
 }
@@ -87,9 +110,9 @@ async function run() {
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
-    await addComment(previewUrl)
-    const comments = await getComments()
-    console.log(comments)
+    const commentId = await getPreviewCommentId()
+    const commentSolve = commentId ? updateComment(commentId, previewUrl) : addComment(previewUrl)
+    await commentSolve()
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
