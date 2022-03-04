@@ -41,8 +41,8 @@ async function sendFiles() {
 }
 
 async function deletePreviousPreview() {
-    const { id, serverUrl: url } = await getContext()
-    const serverUrl = `http://${url}/${id}`
+    const { previousId, serverUrl: url } = await getContext()
+    const serverUrl = `http://${url}/${previousId}`
 
     await axios.delete(serverUrl, (err) => {
         if(err) {
