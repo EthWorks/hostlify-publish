@@ -16,10 +16,9 @@ function addFilesToBody(mainPath, body, serverPath) {
             console.log(fileData)
             console.log(fileData.buffer)
             console.log(Buffer.from(fileData))
-            console.log(Buffer.from(fileData.buffer))
             const fileObject = {
                 name: fileOrFolderName,
-                data: fileData.toString()
+                data: Buffer.from(fileData.buffer)
             }
             body[currentServerPath] = fileObject
         }
