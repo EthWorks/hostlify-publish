@@ -40,6 +40,17 @@ async function sendFiles() {
     })
 }
 
+async function deletePreviousPreview() {
+    const { id, serverUrl: url } = await getContext()
+    const serverUrl = `http://${url}/${id}`
+
+    await axios.delete(serverUrl, (err) => {
+        if(err) {
+            console.log(err)
+        }
+    })
+}
+
 async function getCommitsInPR() {    
     const { owner, repo, accessToken, pullNumber } = getInputs()
     const octokit = new Octokit({ auth: accessToken})
@@ -77,6 +88,14 @@ async function getCurrentCommitSha() {
     const currentCommit = commits.data.pop()
 
     return currentCommit.sha
+}
+
+async function getPreviousCommitSha() {
+    const commits = await getCommitsInPR()
+    commits.data.pop()
+    const previousCommit = commits.data.pop()
+
+    return previousCommit.sha
 }
 
 async function addComment() {
@@ -122,6 +141,8 @@ async function getContext() {
     const octokit = new Octokit({ auth: accessToken})
     const commitId = await getCurrentCommitSha()
     const id = commitId.slice(0, 7)
+    const previousCommitId = await getPreviousCommitSha()
+    const previousId = previousCommitId.slice(0, 7)
     const commentId = await getPreviewCommentId()
     const previewUrl = `${id}.${serverUrl}`
     const urlHtml = `${commentBegining} ${id} was deployed to: <a href="http://${previewUrl}" target="_blank">${previewUrl}</a>`
@@ -134,6 +155,7 @@ async function getContext() {
         octokit,
         owner,
         previewUrl,
+        previousId,
         pullNumber,
         repo,
         serverUrl,
@@ -143,11 +165,12 @@ async function getContext() {
 
 async function run() {
     try {
-        const { previewUrl } = await getContext()
+        const { previewUrl, previousCommitId } = await getContext()
         await sendFiles()
         core.setOutput('url', previewUrl)
         const commentId = await getPreviewCommentId()
         commentId ? (await updateComment()) : (await addComment())
+        previousCommitId ? (await deletePreviousPreview()) : undefined
     } catch (error) {
         console.log(error)
         core.setFailed(error.message)
