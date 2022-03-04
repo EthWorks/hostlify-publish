@@ -50,7 +50,7 @@ async function addComment(commentContent) {
 }
 
 async function getInputs() {
-    const id = github.context.sha.slice(0, 7)
+    const id = github.context.payload.after.slice(0, 7)
     const files = core.getInput('files')
     const serverUrl = core.getInput('server-url')
     const repo = github.context.payload.repository.name
@@ -72,7 +72,6 @@ async function getInputs() {
 
 async function run() {
     try {
-    console.log(github.context)
     const { files, serverUrl, id } = await getInputs()
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
