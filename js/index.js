@@ -37,6 +37,17 @@ async function sendFiles(mainPath, url, id) {
     })
 }
 
+async function getCommitsInPR() {    
+    const { owner, repo, accessToken, pullNumber } = await getInputs()
+    const octokit = new Octokit({ auth: accessToken})
+    const commits = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/commits', {
+        owner,
+        repo,
+        pull_number: pullNumber
+    })
+    return commits
+}
+
 async function getComments() {
     const { owner, repo, accessToken, pullNumber } = await getInputs()
     const octokit = new Octokit({ auth: accessToken})
@@ -107,7 +118,8 @@ async function getInputs() {
 async function run() {
     try {
     const { files, serverUrl, id } = await getInputs()
-    console.log(github.context)
+    const commits = await getCommitsInPR()
+    console.log(commits)
     const previewUrl = `${id}.${serverUrl}`
     await sendFiles(files, serverUrl, id)
     core.setOutput('url', previewUrl)
